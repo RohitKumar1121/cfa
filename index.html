@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFA L1 Precision Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="#" class="nav-brand" onclick="showView('home'); return false;" title="Go to Dashboard">
+            <span class="brand-text">CFA L1</span>
+        </a>
+        <div class="nav-links">
+            <button class="nav-link active" data-view="home">Dashboard</button>
+            <button class="nav-link" data-view="quiz">Quiz</button>
+            <button class="nav-link" data-view="mockExam">Mock Exam</button>
+            <button class="nav-link" data-view="premium">Premium Pack</button>
+            <button class="nav-link" data-view="flagged">Flagged</button>
+            <button class="nav-link" data-view="analytics">Analytics</button>
+        </div>
+        <div class="exam-countdown" id="examCountdown">
+            <span class="countdown-label">EXAM IN</span>
+            <span class="countdown-value" id="daysLeft">--</span>
+            <span class="countdown-unit">DAYS</span>
+        </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </nav>
+
+    <!-- Home Dashboard View -->
+    <main class="view active" id="homeView">
+        <div class="dashboard-container">
+            <header class="dashboard-header">
+                <h1 class="dashboard-title">Precision Assessment</h1>
+                <p class="dashboard-subtitle">CFA Level 1 Exam Preparation</p>
+            </header>
+
+            <div class="motivation-banner" id="motivationBanner">
+                <span class="motivation-icon">💡</span>
+                <p class="motivation-quote" id="motivationQuote">Loading inspiration...</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value" id="totalQuestions">0</span>
+                    <span class="stat-label">Total Questions</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="answeredCount">0</span>
+                    <span class="stat-label">Answered</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="correctCount">0</span>
+                    <span class="stat-label">Correct</span>
+                </div>
+                <div class="stat-card accent">
+                    <span class="stat-value" id="accuracyRate">0%</span>
+                    <span class="stat-label">Accuracy</span>
+                </div>
+            </div>
+
+            <section class="topics-section">
+                <h2 class="section-title">Topics</h2>
+                <div class="topics-grid" id="topicsGrid">
+                    <!-- Topics will be dynamically populated -->
+                </div>
+            </section>
+
+            <div class="quick-actions">
+                <button class="btn-primary" id="continueBtn" onclick="continueLearning()">
+                    Continue Learning →
+                </button>
+                <button class="btn-secondary" onclick="reviewFlagged()">
+                    Review Flagged (<span id="flaggedCount">0</span>)
+                </button>
+            </div>
+
+        </div>
+        </div>
+    </main>
+
+    <!-- Quiz View -->
+    <main class="view" id="quizView">
+        <div class="chassis">
+            <!-- Topic Selector (shown when no topic selected) -->
+            <div class="topic-selector" id="topicSelector">
+                <h2 class="selector-title">Select a Topic</h2>
+                <div class="reading-list" id="readingList">
+                    <!-- Readings will be dynamically populated -->
+                </div>
+                <button class="btn-secondary" onclick="showView('home')">← Back to Dashboard</button>
+            </div>
+
+            <!-- Quiz Interface (shown during quiz) -->
+            <div class="quiz-interface" id="quizInterface" style="display: none;">
+                <div class="gauge-container">
+                    <div class="gauge-label">
+                        <span id="sessionLabel">PRECISION ASSESSMENT / SESSION 01</span>
+                        <span id="progressLabel">Progress: 0%</span>
+                    </div>
+                    <div class="milled-slot">
+                        <div class="precision-fill" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <div class="timer-float" id="timerFloat">
+                    <span class="timer-value" id="questionTimer">00:00</span>
+                    <button class="timer-pause-btn" id="pauseBtn" onclick="togglePause()" title="Pause/Resume">
+                        <span id="pauseIcon">⏸</span>
+                    </button>
+                </div>
+
+                <div class="metadata">
+                    <span id="topicMeta">MOD: --</span>
+                    <span id="readingMeta">REF: --</span>
+                    <span id="questionNum">Q: 1</span>
+                </div>
+
+                <h1 class="question-text" id="questionText">
+                    Loading question...
+                </h1>
+
+                <div class="options-grid" id="optionsGrid">
+                    <!-- Options will be dynamically populated -->
+                </div>
+
+                <div class="explanation-box" id="explanationBox" style="display: none;">
+                    <div class="explanation-header">
+                        <span class="explanation-icon" id="resultIcon">✓</span>
+                        <span class="explanation-title" id="resultTitle">Correct!</span>
+                    </div>
+                    <p class="explanation-text" id="explanationText"></p>
+                </div>
+
+                <footer class="controls">
+                    <button class="btn-secondary" id="prevBtn" onclick="prevQuestion()">← Previous</button>
+                    <button class="btn-flag" id="flagBtn" onclick="toggleFlag()">
+                        <span class="flag-icon">⚑</span> Flag for Review
+                    </button>
+                    <button class="btn-primary" id="nextBtn" onclick="nextQuestion()">
+                        Next →
+                    </button>
+                </footer>
+            </div>
+        </div>
+    </main>
+
+    <!-- Flagged Questions View -->
+    <main class="view" id="flaggedView">
+        <div class="dashboard-container">
+            <header class="dashboard-header">
+                <h1 class="dashboard-title">Flagged Questions</h1>
+                <p class="dashboard-subtitle">Questions marked for review</p>
+            </header>
+
+            <div class="filter-bar">
+                <select class="topic-filter" id="flaggedTopicFilter" onchange="filterFlagged()">
+                    <option value="all">All Topics</option>
+                </select>
+            </div>
+
+            <div class="flagged-list" id="flaggedList">
+                <!-- Flagged questions will be populated here -->
+            </div>
+
+            <div class="empty-state" id="noFlagged" style="display: none;">
+                <span class="empty-icon">⚑</span>
+                <p>No flagged questions yet</p>
+                <span class="empty-hint">Flag questions during practice to review them later</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mock Exam View -->
+    <main class="view" id="mockExamView">
+        <!-- Mock Selection Screen -->
+        <div id="mockSelection">
+            <div class="dashboard-container">
+                <header class="dashboard-header">
+                    <h1 class="dashboard-title">Mock Exams</h1>
+                    <p class="dashboard-subtitle">Simulate the real CFA L1 exam experience</p>
+                </header>
+
+                <div class="mock-info-banner">
+                    <div class="info-item">
+                        <span class="info-icon">⏱</span>
+                        <span>135 minutes per session</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📝</span>
+                        <span>90 questions per session</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📊</span>
+                        <span>All topics covered</span>
+                    </div>
+                </div>
+
+                <div class="mock-grid" id="mockGrid">
+                    <!-- Dynamically populated by renderMockSelection() -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Mock Exam Interface (during exam) -->
+        <div id="mockExamInterface" style="display: none;">
+            <div class="mock-header">
+                <span class="mock-title" id="mockTitle">MOCK EXAM 1 / SESSION 1</span>
+                <div class="mock-timer" id="mockTimer">
+                    <span class="timer-label">TIME REMAINING</span>
+                    <span class="timer-display" id="mockTimerDisplay">02:15:00</span>
+                </div>
+            </div>
+
+            <div class="mock-body">
+                <!-- Navigator Sidebar -->
+                <div class="mock-navigator">
+                    <div class="navigator-header">
+                        <span>Question Navigator</span>
+                    </div>
+                    <div class="navigator-grid" id="navigatorGrid">
+                        <!-- Populated by renderMockNavigator() -->
+                    </div>
+                    <div class="navigator-summary">
+                        <div class="summary-row">
+                            <span>Answered:</span>
+                            <span id="answeredSummary">0/90</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Flagged:</span>
+                            <span id="flaggedSummary">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="mock-question-area">
+                    <div class="mock-question-header">
+                        <span id="mockQuestionNum">Question 1 of 90</span>
+                        <button class="mock-flag-btn" id="mockFlagBtn" onclick="toggleMockFlag()">
+                            <span class="flag-icon">⚑</span> Flag for Review
+                        </button>
+                    </div>
+                    <div class="mock-question-content" id="mockQuestionContent">
+                        <!-- Question text -->
+                    </div>
+                    <div class="mock-options" id="mockOptions">
+                        <!-- Options populated here -->
+                    </div>
+                    <div class="mock-controls">
+                        <button class="btn btn-secondary" id="mockPrevBtn" onclick="mockPrevQuestion()">←
+                            Previous</button>
+                        <button class="btn btn-primary" id="mockNextBtn" onclick="mockNextQuestion()">Next →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Break Screen (between sessions) -->
+        <div id="mockBreakScreen" style="display: none;">
+            <div class="break-content">
+                <h2>☕ Session 1 Complete!</h2>
+                <div id="session1Summary"></div>
+                <p>Take a 30-minute break like the real exam.</p>
+                <div class="break-actions">
+                    <button class="btn btn-primary" onclick="startSession2()">Start Session 2</button>
+                    <button class="btn btn-secondary" onclick="exitMockExam()">Exit Exam</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="mockResultsScreen" style="display: none;">
+            <div class="results-content">
+                <h2 id="resultsMockTitle">Mock Exam Results</h2>
+                <div class="overall-score-circle" id="overallScoreCircle">
+                    <span id="overallScore">75%</span>
+                </div>
+                <div class="session-breakdown">
+                    <div class="session-result">
+                        <h3>Session 1</h3>
+                        <span id="session1Score">0/90</span>
+                        <span id="session1Percent">0%</span>
+                        <span id="timeUsedS1">0:00</span>
+                    </div>
+                    <div class="session-result">
+                        <h3>Session 2</h3>
+                        <span id="session2Score">0/90</span>
+                        <span id="session2Percent">0%</span>
+                        <span id="timeUsedS2">0:00</span>
+                    </div>
+                </div>
+                <div class="results-actions">
+                    <button class="btn btn-secondary" onclick="reviewMockExam()">Review Answers</button>
+                    <button class="btn btn-primary" onclick="exitMockExam()">Return to Dashboard</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- End Exam Modal -->
+    <div id="endExamModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Submit Exam?</h3>
+            <p>You have answered <span id="answeredCountModal">0</span> questions.</p>
+            <p>Are you sure you want to submit?</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeEndExamModal()">Continue Exam</button>
+                <button class="btn btn-primary" onclick="endMockSession()">Submit</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Analytics View -->
+    <main class="view" id="analyticsView">
+        <div class="dashboard-container">
+            <header class="dashboard-header">
+                <h1 class="dashboard-title">Analytics</h1>
+                <p class="dashboard-subtitle">Performance insights and trends</p>
+            </header>
+
+            <!-- Overall Stats Summary -->
+            <div class="analytics-summary">
+                <div class="summary-card">
+                    <span class="summary-icon">📊</span>
+                    <div class="summary-content">
+                        <span class="summary-value" id="overallAccuracy">0%</span>
+                        <span class="summary-label">Overall Accuracy</span>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-icon">✅</span>
+                    <div class="summary-content">
+                        <span class="summary-value" id="totalAnswered">0</span>
+                        <span class="summary-label">Questions Answered</span>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-icon">⏱</span>
+                    <div class="summary-content">
+                        <span class="summary-value" id="avgTimePerQ">0s</span>
+                        <span class="summary-label">Avg Time/Question</span>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-icon">📚</span>
+                    <div class="summary-content">
+                        <span class="summary-value" id="totalStudyTime">0h</span>
+                        <span class="summary-label">Total Study Time</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <!-- Performance by Topic -->
+                <div class="analytics-card full-width">
+                    <h3 class="card-title">Performance by Topic</h3>
+                    <div class="chart-container" id="topicChart">
+                        <!-- Topic performance bars -->
+                    </div>
+                </div>
+
+                <!-- Time Analytics -->
+                <div class="analytics-card">
+                    <h3 class="card-title">⏰ Time Analytics</h3>
+                    <div class="time-stats">
+                        <div class="time-stat-row">
+                            <span class="time-label">Fastest Topic</span>
+                            <span class="time-value" id="fastestTopic">--</span>
+                        </div>
+                        <div class="time-stat-row">
+                            <span class="time-label">Slowest Topic</span>
+                            <span class="time-value" id="slowestTopic">--</span>
+                        </div>
+                        <div class="time-stat-row">
+                            <span class="time-label">Best Performance</span>
+                            <span class="time-value success" id="bestTopic">--</span>
+                        </div>
+                        <div class="time-stat-row">
+                            <span class="time-label">Needs Improvement</span>
+                            <span class="time-value danger" id="worstTopic">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Study Sessions -->
+                <div class="analytics-card">
+                    <h3 class="card-title">📈 Study Sessions</h3>
+                    <div class="session-stats">
+                        <div class="session-stat">
+                            <span class="session-value" id="totalSessions">0</span>
+                            <span class="session-label">Sessions</span>
+                        </div>
+                        <div class="session-stat">
+                            <span class="session-value" id="avgSessionTime">0m</span>
+                            <span class="session-label">Avg. Duration</span>
+                        </div>
+                    </div>
+                    <div class="session-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Today's Questions</span>
+                            <span class="detail-value" id="todayQuestions">0</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">This Week</span>
+                            <span class="detail-value" id="weekQuestions">0</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Current Streak</span>
+                            <span class="detail-value streak" id="currentStreak">🔥 0 days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weak Areas -->
+                <div class="analytics-card">
+                    <h3 class="card-title">⚠️ Weak Areas</h3>
+                    <div class="weak-areas" id="weakAreas">
+                        <p class="empty-hint">Complete more questions to identify weak areas</p>
+                    </div>
+                </div>
+
+                <!-- Strong Areas -->
+                <div class="analytics-card">
+                    <h3 class="card-title">💪 Strong Areas</h3>
+                    <div class="strong-areas" id="strongAreas">
+                        <p class="empty-hint">Complete more questions to identify strong areas</p>
+                    </div>
+                </div>
+
+                <!-- Progress Milestones -->
+                <div class="analytics-card full-width">
+                    <h3 class="card-title">🎯 Progress Milestones</h3>
+                    <div class="milestones" id="milestones">
+                        <div class="milestone">
+                            <span class="milestone-icon locked">🔒</span>
+                            <span class="milestone-text">Complete 100 questions</span>
+                        </div>
+                        <div class="milestone">
+                            <span class="milestone-icon locked">🔒</span>
+                            <span class="milestone-text">Reach 70% overall accuracy</span>
+                        </div>
+                        <div class="milestone">
+                            <span class="milestone-icon locked">🔒</span>
+                            <span class="milestone-text">Study 10 hours total</span>
+                        </div>
+                        <div class="milestone">
+                            <span class="milestone-icon locked">🔒</span>
+                            <span class="milestone-text">7-day study streak</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button class="btn-primary" onclick="exportProgress()">↓ Export Progress</button>
+                <label class="btn-secondary import-btn">
+                    ↑ Import Progress
+                    <input type="file" id="importFile" accept=".json" onchange="importProgress(event)"
+                        style="display: none;">
+                </label>
+                <button class="btn-secondary" onclick="resetProgress()">Reset All Progress</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mock Exam View -->
+    <main class="view" id="mockExamView">
+        <!-- Mock Selection Screen -->
+        <div class="mock-selection" id="mockSelection">
+            <div class="dashboard-container">
+                <header class="dashboard-header">
+                    <h1 class="dashboard-title">Mock Examinations</h1>
+                    <p class="dashboard-subtitle">CFA Level 1 Simulated Exam Environment</p>
+                </header>
+
+                <div class="mock-info-banner">
+                    <div class="info-item">
+                        <span class="info-icon">⏱</span>
+                        <span class="info-text"><strong>2h 15m</strong> per session</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📝</span>
+                        <span class="info-text"><strong>90 questions</strong> per session</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">🚫</span>
+                        <span class="info-text"><strong>No pause</strong> allowed</span>
+                    </div>
+                </div>
+
+                <div class="mock-grid" id="mockGrid">
+                    <!-- Mock cards generated by JS -->
+                </div>
+
+                <button class="btn-secondary" onclick="showView('home')">← Back to Dashboard</button>
+            </div>
+        </div>
+
+        <!-- Exam Interface -->
+        <div class="mock-exam-interface" id="mockExamInterface" style="display: none;">
+            <!-- Exam Header -->
+            <header class="mock-exam-header">
+                <div class="mock-header-left">
+                    <span class="mock-logo">◈ CFA L1</span>
+                    <span class="mock-title" id="mockTitle">MOCK EXAM 1 / SESSION 1</span>
+                </div>
+                <div class="mock-header-center">
+                    <div class="mock-timer" id="mockTimer">
+                        <span class="timer-icon">⏱</span>
+                        <span class="timer-display" id="mockTimerDisplay">02:15:00</span>
+                    </div>
+                </div>
+                <div class="mock-header-right">
+                    <button class="btn-end-exam" id="endExamBtn" onclick="confirmEndExam()">
+                        End Exam
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Exam Area -->
+            <div class="mock-exam-body">
+                <!-- Question Navigator Sidebar -->
+                <aside class="mock-navigator" id="mockNavigator">
+                    <div class="navigator-header">
+                        <span>Questions</span>
+                        <div class="navigator-legend">
+                            <span class="legend-item answered">●</span>
+                            <span class="legend-item flagged">⚑</span>
+                        </div>
+                    </div>
+                    <div class="navigator-grid" id="navigatorGrid">
+                        <!-- 90 question buttons generated by JS -->
+                    </div>
+                    <div class="navigator-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Answered</span>
+                            <span class="summary-value" id="answeredSummary">0/90</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Flagged</span>
+                            <span class="summary-value" id="flaggedSummary">0</span>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Question Content -->
+                <div class="mock-question-area">
+                    <div class="mock-question-header">
+                        <span class="question-number" id="mockQuestionNum">Question 1 of 90</span>
+                        <button class="btn-flag-mock" id="mockFlagBtn" onclick="toggleMockFlag()">
+                            <span class="flag-icon">⚑</span> Flag for Review
+                        </button>
+                    </div>
+
+                    <div class="mock-question-content" id="mockQuestionContent">
+                        <!-- Question text loaded by JS -->
+                    </div>
+
+                    <div class="mock-options" id="mockOptions">
+                        <!-- Options loaded by JS -->
+                    </div>
+
+                    <div class="mock-question-controls">
+                        <button class="btn-secondary" id="mockPrevBtn" onclick="mockPrevQuestion()">
+                            ← Previous
+                        </button>
+                        <button class="btn-primary" id="mockNextBtn" onclick="mockNextQuestion()">
+                            Next →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Break Screen -->
+        <div class="mock-break-screen" id="mockBreakScreen" style="display: none;">
+            <div class="break-content">
+                <div class="break-icon">☕</div>
+                <h2>Session 1 Complete</h2>
+                <p class="break-subtitle">Take an optional break before Session 2</p>
+
+                <div class="session-summary" id="session1Summary">
+                    <!-- Session 1 results -->
+                </div>
+
+                <div class="break-actions">
+                    <button class="btn-secondary" onclick="exitMockExam()">Exit & Save Progress</button>
+                    <button class="btn-primary" onclick="startSession2()">Continue to Session 2 →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div class="mock-results-screen" id="mockResultsScreen" style="display: none;">
+            <div class="results-content">
+                <div class="results-header">
+                    <h2>Exam Complete</h2>
+                    <p class="results-mock-title" id="resultsMockTitle">Mock Exam 1</p>
+                </div>
+
+                <div class="results-score-display">
+                    <div class="score-circle" id="overallScoreCircle">
+                        <span class="score-value" id="overallScore">0%</span>
+                        <span class="score-label">Overall</span>
+                    </div>
+                </div>
+
+                <div class="results-breakdown">
+                    <div class="breakdown-card">
+                        <h4>Session 1</h4>
+                        <span class="breakdown-score" id="session1Score">0/90</span>
+                        <span class="breakdown-percent" id="session1Percent">0%</span>
+                    </div>
+                    <div class="breakdown-card">
+                        <h4>Session 2</h4>
+                        <span class="breakdown-score" id="session2Score">0/90</span>
+                        <span class="breakdown-percent" id="session2Percent">0%</span>
+                    </div>
+                </div>
+
+                <div class="results-time-stats">
+                    <div class="time-stat">
+                        <span class="time-label">Time Used (S1)</span>
+                        <span class="time-value" id="timeUsedS1">--:--</span>
+                    </div>
+                    <div class="time-stat">
+                        <span class="time-label">Time Used (S2)</span>
+                        <span class="time-value" id="timeUsedS2">--:--</span>
+                    </div>
+                </div>
+
+                <div class="results-actions">
+                    <button class="btn-secondary" onclick="reviewMockExam()">Review Answers</button>
+                    <button class="btn-primary" onclick="exitMockExam()">Return to Dashboard</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Premium Pack View -->
+    <main class="view" id="premiumView">
+        <div class="dashboard-container">
+            <header class="dashboard-header">
+                <h1 class="dashboard-title">Premium Pack</h1>
+                <p class="dashboard-subtitle">Exclusive high-yield questions by subject</p>
+            </header>
+
+            <div class="mock-info-banner">
+                <div class="info-item">
+                    <span class="info-icon">💎</span>
+                    <span class="info-text"><strong>Premium Content</strong></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">📚</span>
+                    <span class="info-text"><strong>Subject-wise</strong> Practice</span>
+                </div>
+            </div>
+
+            <div class="mock-grid" id="premiumGrid">
+                <!-- Premium Topic cards generated by JS -->
+            </div>
+
+            <button class="btn-secondary" onclick="showView('home')">← Back to Dashboard</button>
+        </div>
+    </main>
+
+    <!-- End Exam Confirmation Modal -->
+    <div class="modal-overlay" id="endExamModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">End Exam?</h2>
+                <button class="modal-close" onclick="closeEndExamModal()">×</button>
+            </div>
+            <p class="modal-message">Are you sure you want to end this session? You have answered <span
+                    id="answeredCountModal">0</span> out of 90 questions.</p>
+            <div class="modal-warning">
+                <span class="warning-icon">⚠️</span>
+                <span>Unanswered questions will be marked as incorrect.</span>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeEndExamModal()">Continue Exam</button>
+                <button class="btn-primary btn-danger" onclick="endMockSession()">End Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Results Modal -->
+    <div class="modal-overlay" id="resultsModal" style="display: none;">
+        <div class="modal-content results-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Quiz Complete!</h2>
+                <button class="modal-close" onclick="closeResultsModal()">×</button>
+            </div>
+            <div class="results-summary" id="resultsSummary">
+                <!-- Summary stats -->
+            </div>
+            <div class="results-details">
+                <h3 class="details-title">Question Breakdown</h3>
+                <div class="results-table-container">
+                    <table class="results-table" id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Time</th>
+                                <th>Result</th>
+                                <th>Your Answer</th>
+                                <th>Correct</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="reviewMistakes()">Review Mistakes</button>
+                <button class="btn-primary" onclick="closeResultsModal()">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Overlay -->
+    <div class="pause-overlay" id="pauseOverlay" style="display: none;">
+        <div class="pause-content">
+            <div class="pause-icon">⏸</div>
+            <h2 class="pause-title">Assessment Paused</h2>
+            <p class="pause-subtitle">Timer stopped. Take a breather.</p>
+            <button class="btn-primary" onclick="togglePause()">Resume Assessment ▶</button>
+        </div>
+    </div>
+
+
+
+    <script src="app.js"></script>
+</body>
+
+</html>
